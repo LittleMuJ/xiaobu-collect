@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.pro.dao.SdCollectTaskDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.pro.entity.SdCollectTask"></parameterMap>
+    <resultMap id="SdCollectTaskResultMap" type="com.xiaobu.web.pro.entity.SdCollectTask"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t.id,
+			t.parent_id,
+			t.consumer_id,
+			t.organization_id,
+			t."name",
+			t.intro,
+			t.detail,
+			t.type,
+			t.example,
+			t.total,
+			t.price,
+			t.duration,
+			t."promiseTime",
+            to_char(t."deadline",'yyyy-MM-dd') as deadline,
+			t.count,
+			t."doneNum",
+			t.status,
+            to_char(t."startTime",'yyyy-MM-dd') as startTime,
+			t.organization_total,
+            t."surplusNum",
+            t.rule_count,
+            t.rule_time,
+            t.rule_number,
+            t.submit_limit,
+            t.residue_count,
+            t.rule_check,
+            t.rule_error,
+            t.rule_error_package,
+            t.rule_error_single
+	 	</trim>
+	</sql>
+	
+    <select id="getById" parameterType="java.lang.Integer" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" AS consumerName,
+        so."name" AS organizationName
+        FROM
+        sd_collect_task t
+        LEFT JOIN sd_organization so ON t.organization_id = so."id"
+        LEFT JOIN sd_consumer sc ON t.consumer_id = sc."id"
+        where t.id = #{value}
+    </select>
+	
+	
+	<select id="findByCutomerId" parameterType="Integer" resultMap="SdCollectTaskResultMap">
+		select 
+			<include refid="columnSql"></include>
+		from sd_collect_task t
+		where t.consumer_id = ${id}
+	</select>
+	
+	<select id="findByOraginationId" parameterType="Integer" resultMap="SdCollectTaskResultMap">
+		select
+		<include refid="columnSql"></include>
+		from sd_collect_task t
+		where t.organization_id = ${id}
+	</select>
+
+
+
+    <insert id="add" parameterMap="parameterMap">
+		insert into sd_collect_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			parent_id,
+			consumer_id,
+			organization_id,
+			name,
+			intro,
+			detail,
+			type,
+			example,
+			total,
+			price,
+			duration,
+            "promiseTime",
+			deadline,
+			count,
+			"doneNum",
+			status,
+			"startTime",
+            organization_total,
+            "surplusNum",
+            rule_count,
+            rule_time,
+            rule_number,
+            submit_limit,
+            residue_count,
+            rule_check,
+            rule_error,
+            rule_error_package,
+            rule_error_single
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{parentId},
+			#{consumerId},
+			#{organizationId},
+			#{name},
+			#{intro},
+			#{detail},
+			#{type},
+			#{example},
+			#{total},
+			#{price},
+			#{duration},
+			#{promisetime},
+			#{deadline},
+			#{count},
+			#{doneNum},
+			#{status},
+			#{startTime},
+            #{organizationTotal},
+            #{surplusNum},
+            #{ruleCount},
+            #{ruleTime},
+            #{ruleNumber},
+            #{submitLimit},
+            #{residueCount},
+            #{ruleCheck},
+            #{ruleError},
+            #{ruleErrorPackage},
+            #{ruleErrorSingle},
+		</trim>
+	</insert>
+	
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_collect_task
+		<set>
+			<if test="parentId != null">
+			parent_id = #{parentId},
+			</if>
+			<if test="consumerId != null">
+			consumer_id = #{consumerId},
+			</if>
+			<if test="organizationId != null">
+			organization_id = #{organizationId},
+			</if>
+			<if test="name != null">
+			name = #{name},
+			</if>
+			<if test="intro != null">
+			intro = #{intro},
+			</if>
+			<if test="detail != null">
+			detail = #{detail},
+			</if>
+			<if test="type != null">
+			type = #{type},
+			</if>
+			<if test="example != null">
+			example = #{example},
+			</if>
+			<if test="total != null">
+			total = #{total},
+			</if>
+			<if test="price != null">
+			price = #{price},
+			</if>
+			<if test="duration != null">
+			duration = #{duration},
+			</if>
+			<if test="promisetime != null">
+            "promiseTime" = #{promisetime},
+			</if>
+			<if test="deadline != null">
+			deadline = #{deadline},
+			</if>
+			<if test="count != null">
+			count = #{count},
+			</if>
+			<if test="doneNum != null">
+             "doneNum" = #{doneNum},
+			</if>
+			<if test="status != null">
+			status = #{status},
+			</if>
+			<if test="startTime != null">
+                "startTime" = #{startTime},
+			</if>
+            <if test="organizationTotal != null">
+            organization_total = #{organizationTotal},
+            </if>
+            <if test="surplusNum != null">
+              "surplusNum" = #{surplusNum},
+            </if>
+            <if test="ruleCount != null">
+                rule_count = #{ruleCount},
+            </if>
+            <if test="ruleTime != null">
+                rule_time = #{ruleTime},
+            </if>
+            <if test="ruleNumber != null">
+                rule_number = #{ruleNumber},
+            </if>
+            <if test="submitLimit != null">
+                submit_limit = #{submitLimit},
+            </if>
+            <if test="residueCount != null">
+                residue_count = #{residueCount},
+          </if>
+            <if test="ruleCheck != null">
+                rule_check = #{ruleCheck},
+            </if>
+            <if test="ruleError != null">
+                rule_error = #{ruleError},
+            </if>
+            <if test="ruleErrorPackage != null">
+                rule_error_package = #{ruleErrorPackage},
+            </if>
+            <if test="ruleErrorSingle != null">
+                rule_error_single = #{ruleErrorSingle},
+            </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_collect_task where id = ${value}
+	</delete>
+
+    <select id="findByPage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        t.ID,
+        T.parent_id,
+        T.consumer_id,
+        T.organization_id,
+        T."name",
+        T.intro,
+        T.detail,
+        T.TYPE,
+        T.example,
+        T.total,
+        T.price,
+        T.duration,
+        T."promiseTime",
+        t.deadline,
+        T.COUNT,
+        T."doneNum",
+        T.STATUS,
+        T.startTime,
+        T."surplusNum",
+        T.organization_total,
+        T.rule_count,
+        T.rule_time,
+        T.rule_number,
+        T.submit_limit,
+        T.residue_count,
+        T.rule_check,
+        T.rule_error,
+        T.rule_error_package,
+        T.rule_error_single,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from (
+        SELECT
+        ID,
+        parent_id,
+        consumer_id,
+        organization_id,
+        "name",
+        intro,
+        detail,
+        TYPE,
+        example,
+        total,
+        price,
+        duration,
+        "promiseTime",
+        to_char ( "deadline", 'yyyy-MM-dd' ) AS deadline,
+        COUNT,
+        "doneNum",
+        STATUS,
+        to_char ( "startTime", 'yyyy-MM-dd' ) AS startTime,
+        "surplusNum",
+        rule_count,
+        rule_time,
+        rule_number,
+        submit_limit,
+        residue_count,
+        rule_check,
+        rule_error,
+        rule_error_package,
+        rule_error_single,
+        organization_total,( CASE WHEN ID > parent_id THEN parent_id ELSE ID END ) FLAG
+        FROM
+        sd_collect_task
+        ) T
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and t.name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and t.type = #{type}
+            </if>
+            <if test="consumerId != null and consumerId != ''">
+                and t.consumer_id = #{consumerId}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                AND t.organization_id is NOT NULL
+            </if>
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+        </where>
+        ORDER BY FLAG,ID,t.deadline
+    </select>
+
+    <!--团队管理员采集任务列表分页接口-->
+    <select id="findCollectPage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName,
+        CASE WHEN
+        (SELECT count(sc.id) FROM sd_collect sc WHERE sc.task_id=t.id AND sc.status=${status2})  >= t."count" THEN true ELSE false END as isSubmit
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and t.name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and t.type = #{type}
+            </if>
+            <if test="consumerId != null and consumerId != ''">
+                and t.consumer_id = #{consumerId}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                AND t.organization_id =#{organizationId}
+            </if>
+            <if test="multipleStatus != null and multipleStatus != ''">
+                AND t.status NOT in ${multipleStatus}
+            </if>
+            <if test="statuss != null and statuss != ''">
+                and t.status in (${statuss})
+            </if>
+        </where>
+        ORDER BY T.deadline
+    </select>
+
+    <!---团队管理员待领取采集任务列表分页接口-->
+    <select id="findReadyCollectPage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+
+        <where>
+            1=1
+
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+            <if test="listStatus != null and listStatus != ''">
+                 or t.status =  #{listStatus}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                AND t.organization_id =#{organizationId}
+            </if>
+
+        </where>
+        ORDER BY t.id ASC
+    </select>
+
+    <!--甲方管理员采集任务列表分页接口-->
+    <select id="findCumCollectPage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and t.name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and t.type = #{type}
+            </if>
+            <if test="statuss != null and statuss != ''">
+                and t.status in (${statuss})
+            </if>
+            <if test="consumerId != null and consumerId != ''">
+                and t.consumer_id = #{consumerId}
+            </if>
+            AND t.organization_id is NULL
+            AND t.parent_id is NULL
+        </where>
+        ORDER BY T.deadline
+    </select>
+
+    <!--平台管理员查询审核List，查询organization_id为空的公网任务以及状态值为3的团队管理员提交的待审核状态-->
+    <select id="findExaminePage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        t.ID,
+        T.parent_id,
+        T.consumer_id,
+        T.organization_id,
+        T."name",
+        T.intro,
+        T.detail,
+        T.TYPE,
+        T.example,
+        T.total,
+        T.price,
+        T.duration,
+        T."promiseTime",
+        t.deadline,
+        T.COUNT,
+        T."doneNum",
+        T.STATUS,
+        T.startTime,
+        T."surplusNum",
+        T.organization_total,
+        T.rule_count,
+        T.rule_time,
+        T.rule_number,
+        T.submit_limit,
+        T.residue_count,
+        T.rule_check,
+        T.rule_error,
+        T.rule_error_package,
+        T.rule_error_single,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from (
+        SELECT
+        ID,
+        parent_id,
+        consumer_id,
+        organization_id,
+        "name",
+        intro,
+        detail,
+        TYPE,
+        example,
+        total,
+        price,
+        duration,
+        "promiseTime",
+        to_char ( "deadline", 'yyyy-MM-dd' ) AS deadline,
+        COUNT,
+        "doneNum",
+        STATUS,
+        to_char ( "startTime", 'yyyy-MM-dd' ) AS startTime,
+        "surplusNum",
+        rule_count,
+        rule_time,
+        rule_number,
+        submit_limit,
+        residue_count,
+        rule_check,
+        rule_error,
+        rule_error_package,
+        rule_error_single,
+        organization_total,( CASE WHEN ID > parent_id THEN parent_id ELSE ID END ) FLAG
+        FROM
+        sd_collect_task
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="consumerId != null and consumerId != ''">
+                and consumer_id = #{consumerId}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                AND organization_id is NOT NULL
+            </if>
+        </where>
+        ) T
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+        <where>
+             1=1
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+          and  T.STATUS=#{status2} or (T.parent_id IS NULL AND T.STATUS = #{status3}) or T.STATUS =#{status4}
+        </where>
+        ORDER BY FLAG,ID,t.deadline
+    </select>
+
+    <!--团队管理员查询质检List页面-->
+    <select id="findOrgExaminePage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and t.name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and t.type = #{type}
+            </if>
+            <if test="consumerId != null and consumerId != ''">
+                and t.consumer_id = #{consumerId}
+            </if>
+            <if test="status != null and status != ''">
+                and (t.status = #{status}
+            </if>
+            <if test="status2 != null and status2 != ''">
+                or t.status = #{status2}
+            </if>
+            )
+            AND t.organization_id =#{organizationId}
+        </where>
+        ORDER BY t.id ASC
+    </select>
+
+    <!--甲方管理员管理员查询质检-->
+    <select id="findCunExaminePage" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+        <where>
+            1=1
+            <if test="name != null and name != ''">
+                and t.name  like '%${name}%'
+            </if>
+            <if test="type != null and type != ''">
+                and t.type = #{type}
+            </if>
+            AND t.consumer_id = #{consumerId}
+            AND t.status = #{status}
+        </where>
+        ORDER BY t.id ASC
+    </select>
+
+    <!--查询状态为1已发布的采集任务-->
+    <select id="findCollectTaskByStatus" parameterType="java.lang.Integer" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>
+        from sd_collect_task t
+        <where>
+            1=1
+            and t.status = ${value}
+            and t.organization_id is NULL
+        </where>
+        ORDER BY t.id ASC
+    </select>
+
+
+
+    <!--更具父id查询子任务-->
+    <select id="findtaskByParentId" parameterMap="parameterMap" resultMap="SdCollectTaskResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sc."name" as consumerName,
+        so."name" as organizationName
+        from sd_collect_task t
+        LEFT JOIN sd_organization so on t.organization_id = so."id"
+        left JOIN sd_consumer sc on t.consumer_id = sc."id"
+        <where>
+            1=1
+            AND t.parent_id =#{id}
+        </where>
+        ORDER BY t.id ASC
+    </select>
+
+    <select id="findPieInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+        SELECT
+                count(t.status) as value,
+              '审核' as type	,
+                t.status as name
+            FROM
+                sd_collect_task t
+            WHERE
+                t.STATUS = ${for_inspection}
+                OR t.STATUS = ${inspection_error}
+                OR t.STATUS =${inspection_pass}
+                GROUP BY t.status
+                UNION ALL
+            SELECT
+               count(t.status) as value,
+               '验收' as type	,
+                t.status as name
+            FROM
+                sd_collect_task t
+            WHERE
+                t.STATUS = ${for_acceptance}
+                OR t.STATUS = ${acceptance_error}
+                OR t.STATUS = ${acceptance_success}
+            GROUP BY
+                t.STATUS
+                UNION ALL
+                SELECT
+               count(t.status) as value,
+               '其他' as type	,
+                t.status as name
+            FROM
+                sd_collect_task t
+            WHERE
+                t.STATUS = ${is_issue}
+                OR t.STATUS = ${is_start}
+                OR t.STATUS = ${is_close_account}
+            GROUP BY
+                t.STATUS
+    </select>
+
+    <select id="findConHeadInfo" parameterType="java.lang.Integer" resultType="java.util.Map">
+          SELECT
+                ( SELECT count( t."id" ) FROM sd_collect_task t WHERE t."type" = 1 AND t.consumer_id = sc.consumer_id AND t.parent_id is null) AS picture,
+                ( SELECT count( t."id" ) FROM sd_collect_task t WHERE t."type" = 2 AND t.consumer_id = sc.consumer_id AND t.parent_id is null) AS voice
+            FROM
+                sd_collect_task sc
+            WHERE
+                1 = 1
+                AND sc.consumer_id = #{value}
+            GROUP BY
+                sc.consumer_id
+
+    </select>
+
+    <select id="findTaskIngAndACCEPTANCE" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+        <include refid="columnSql"></include>
+        FROM
+            sd_collect_task t
+        WHERE
+            1 = 1
+            AND t.consumer_id = #{conId}
+            AND (t.status = #{status} or t.status = #{status2})
+            AND t.parent_id is null
+        GROUP BY
+            t."id"
+            ORDER BY t."type"
+    </select>
+
+    <select id="findtableInfo" parameterType="java.util.Map" resultType="java.util.HashMap">
+
+        SELECT
+        to_char ( "startTime", 'MM' ) AS MONTH
+
+        FROM
+        sd_collect_task t
+        WHERE
+        "startTime" BETWEEN TO_TIMESTAMP(#{firstday}, 'yyyy-mm-dd')
+        AND TO_TIMESTAMP(#{lastday}, 'yyyy-mm-dd')
+
+        GROUP BY
+        MONTH
+        ORDER BY month
+
+    </select>
+
+    <select id="findDataByMonth" resultType="java.util.Map" parameterType="java.util.Map">
+
+        SELECT
+        ( SELECT count(s."id") FROM sd_collect_task s WHERE (s.STATUS = ${for_inspection} OR s.STATUS = ${inspection_error} OR s.STATUS = ${inspection_pass}) AND to_char ( s."startTime", 'mm' ) = #{month}) as check,
+        ( SELECT count(sc."id") FROM sd_collect_task sc WHERE (sc.STATUS = ${for_acceptance} OR sc.STATUS = ${acceptance_error} OR sc.STATUS = ${acceptance_success}) AND to_char ( sc."startTime", 'mm' ) = #{month} ) as Acceptance,
+        ( SELECT count(c."id") FROM sd_collect_task c WHERE (c.STATUS = ${is_start} OR c.STATUS = ${is_close_account} OR c.STATUS = ${is_issue}) AND to_char ( c."startTime", 'mm' ) = #{month} ) as other
+    FROM
+        sd_collect_task t
+    WHERE
+        to_char ( t."startTime", 'mm' ) = #{month}
+        GROUP BY
+        to_char ( t."startTime", 'mm' ) =#{month}
+
+    </select>
+</mapper>

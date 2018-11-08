@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.system.dao.SdDictionarydataDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.system.entity.SdDictionarydata"></parameterMap>
+    <resultMap id="SdDictionarydataResultMap" type="com.xiaobu.web.system.entity.SdDictionarydata"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t."id",
+			t."dictdata_name",
+			t."dictdata_value",
+			t."dictdata_type",
+			t."created_at",
+			t."updated_at",
+	 	</trim>
+	</sql>
+	
+    <select id="getById" parameterType="String" resultMap="SdDictionarydataResultMap">
+        select
+			<include refid="columnSql"></include>
+		from sd_dictionarydata t
+		where t.id = #{value}
+    </select>
+
+
+
+    <insert id="add" parameterMap="parameterMap">
+		insert into sd_dictionarydata
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			dictdata_name,
+			dictdata_value,
+			dictdata_type,
+			created_at,
+			updated_at,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id},
+			#{dictdataName},
+			#{dictdataValue},
+			#{dictdataType},
+			#{createdAt},
+			#{updatedAt},
+		</trim>
+	</insert>
+	
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_dictionarydata
+		<set>
+			<if test="id != null">
+			id = #{id},
+			</if>
+			<if test="dictdataName != null">
+			dictdata_name = #{dictdataName},
+			</if>
+			<if test="dictdataValue != null">
+			dictdata_value = #{dictdataValue},
+			</if>
+			<if test="dictdataType != null">
+			dictdata_type = #{dictdataType},
+			</if>
+			<if test="createdAt != null">
+			created_at = #{createdAt},
+			</if>
+			<if test="updatedAt != null">
+			updated_at = #{updatedAt},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_dictionarydata where id = #{value}
+	</delete>
+
+    <select id="findType" parameterType="java.lang.String" resultMap="SdDictionarydataResultMap">
+        select
+        <include refid="columnSql"></include>
+        from sd_dictionarydata t
+        where t."dictdata_type" = #{value}
+        ORDER BY t."id" ASC
+    </select>
+</mapper>

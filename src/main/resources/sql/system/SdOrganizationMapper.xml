@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.system.dao.SdOrganizationDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.system.entity.SdOrganization"></parameterMap>
+    <resultMap id="SdOrganizationResultMap" type="com.xiaobu.web.system.entity.SdOrganization"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t.id,
+			t.name,
+			t.intro,
+			t.phone,
+			t.username,
+			t.password,
+			t.created_at,
+			t.updated_at,
+	 	</trim>
+	</sql>
+	
+    <select id="findByPage" parameterMap="parameterMap" resultMap="SdOrganizationResultMap">
+        select
+			<include refid="columnSql"></include>
+		from sd_organization t
+		<where>
+			<if test="username != null and username != ''">
+				and t.username like '%${username}%'
+			</if>
+			<if test="name != null and name != ''">
+				and t.name like '%${name}%'
+			</if>
+		</where>
+    </select>
+
+
+
+	<insert id="add" parameterMap="parameterMap">
+		insert into sd_organization(name,intro,phone,username,password,created_at,updated_at)
+		values(#{name},#{intro},#{phone},#{username},#{password},#{createdAt},#{updatedAt})
+	</insert>
+
+
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_organization
+		<set>
+			<if test=" name != null">
+				name = #{name},
+			</if>
+			<if test=" intro != null">
+				intro = #{intro},
+			</if>
+			<if test=" phone != null">
+				phone = #{phone},
+			</if>
+			<if test=" username != null">
+				username = #{username},
+			</if>
+			<if test=" password != null">
+				password = #{password},
+			</if>
+			<if test=" createdAt != null">
+				created_at = #{createdAt},
+			</if>
+			<if test=" updatedAt != null">
+				updated_at = #{updatedAt},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_organization where id = #{id}
+	</delete>
+
+
+	<select id="selectByUsername" parameterType="String" resultMap="SdOrganizationResultMap">
+	      select
+			<include refid="columnSql"></include>
+		from sd_organization t
+		where t.username = #{value}
+	</select>
+	
+	<insert id="insertAndGetId" parameterMap="parameterMap" useGeneratedKeys="true" keyProperty="id">
+        insert into sd_organization
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			name,
+			intro,
+			username,
+			password,
+			created_at,
+			updated_at,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{name},
+			#{intro},
+			#{username},
+			#{password},
+			#{createdAt},
+			#{updatedAt},
+		</trim>
+  </insert>
+
+    <select id="findUserSumById" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT COUNT(t.user_id) FROM sd_organization_role t WHERE t.organization_id = #{value} AND t.status =2
+    </select>
+
+    <select id="findCollectSumById" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT COUNT(t."id") FROM sd_collect_task t WHERE t.organization_id = #{value}
+    </select>
+
+    <select id="findOrgTaskInfoById" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+        t."id",
+        t."name",
+        t.STATUS,
+        (SELECT count(ct.id) FROM sd_collect ct WHERE (ct.status =#{error} or ct.status =#{success}) AND ct.task_id =t."id") as spotSum,
+        CASE
+        (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )
+        WHEN '0' THEN
+        0 ELSE  ROUND(
+        ( SELECT COUNT( x."id" ) FROM sd_collect x WHERE x.task_id = t."id" AND x.STATUS = #{success} ) * 100 / (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )::numeric ,2
+        )
+    END  as percentage
+    FROM
+        sd_collect_task t
+    WHERE
+        t.organization_id =#{orgId}
+        AND (t.status = #{shenhe3} or t.status = #{shenhe4} or t.status = #{shenhe5})
+        GROUP BY t."id"
+        ORDER BY t.status DESC
+    </select>
+
+    <select id="findTable" parameterType="java.util.Map" resultType="java.util.HashMap">
+
+        SELECT
+          x.user_id as userId,
+          x.status,
+          u."name",
+          x."startTime",
+          x."finishTime"
+        FROM
+            sd_collect_task t LEFT JOIN sd_collect x on x.task_id=t."id"
+            LEFT JOIN sd_user u on u."id"=x.user_id
+        WHERE
+            t.organization_id = #{orgId}
+            AND t.id = #{taskId}
+            AND (x.status =#{error} or x.status =#{success})
+            ORDER BY x."finishTime" ASC
+    </select>
+    <select id="findPie" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            t."name",
+            t."count",
+        (SELECT count(d."id") FROM sd_collect d WHERE d.task_id=t."id" AND (d.status=#{error} or d.status=#{success})) as checkSum,
+        (SELECT count(s."id") FROM sd_collect s WHERE s.task_id=t."id" AND s.status=#{error}) as notPass,
+        (SELECT count(sd."id") FROM sd_collect sd WHERE sd.task_id=t."id" AND sd.status=#{success}) as isPass,
+        (SELECT count(sc."id") FROM sd_collect sc WHERE sc.task_id=t."id" AND sc.status=#{shenhe5}) as notCheck
+    FROM
+        sd_collect_task t LEFT JOIN sd_collect x on x.task_id=t."id"
+        LEFT JOIN sd_user u on u."id"=x.user_id
+        WHERE
+            t.organization_id = #{orgId}
+            AND t.id = #{taskId}
+            GROUP BY t."id"
+    </select>
+</mapper>

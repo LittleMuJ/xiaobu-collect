@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.system.dao.SdManagerDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.system.entity.SdManager"></parameterMap>
+    <resultMap id="SdManagerResultMap" type="com.xiaobu.web.system.entity.SdManager"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t.id,
+			t.phone,
+			t.email,
+			t.username,
+			t.password,
+			t.created_at,
+			t.updated_at,
+	 	</trim>
+	</sql>
+	
+    <select id="getById" parameterType="String" resultMap="SdManagerResultMap">
+        select
+			<include refid="columnSql"></include>
+		from sd_manager t
+		where t.id = #{value}
+    </select>
+
+
+
+    <insert id="add" parameterMap="parameterMap">
+		insert into sd_manager
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			
+			phone,
+			email,
+			username,
+			password,
+			created_at,
+			updated_at,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			
+			#{phone},
+			#{email},
+			#{username},
+			#{password},
+            now(),
+            now(),
+		</trim>
+	</insert>
+	
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_manager
+		<set>
+			<if test="Id != null">
+			id = #{Id},
+			</if>
+			<if test="Phone != null">
+			phone = #{Phone},
+			</if>
+			<if test="Email != null">
+			email = #{Email},
+			</if>
+			<if test="Username != null">
+			username = #{Username},
+			</if>
+			<if test="Password != null">
+			password = #{Password},
+			</if>
+			<if test="CreatedAt != null">
+			created_at = #{CreatedAt},
+			</if>
+			<if test="UpdatedAt != null">
+			updated_at = #{UpdatedAt},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_manager where id = #{value}
+	</delete>
+	
+	<select id="selectByUsername" parameterType="String" resultMap="SdManagerResultMap">
+	      select
+			<include refid="columnSql"></include>
+		from sd_manager t
+		where t.username = #{value}
+	</select>
+	
+	<select id="selectByphone" resultMap="SdManagerResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="columnSql" />
+    from sd_manager t
+    where t.phone = #{value}
+  </select>
+  
+  <insert id="insertAndGetId" parameterMap="parameterMap" useGeneratedKeys="true" keyProperty="id">
+        insert into sd_manager
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			phone,
+			email,
+			username,
+			password,
+			created_at,
+			updated_at,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{phone},
+			#{email},
+			#{username},
+			#{password},
+			#{createdAt},
+			#{updatedAt},
+		</trim>
+  </insert>
+</mapper>

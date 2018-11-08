@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.pro.dao.SdCollectDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.pro.entity.SdCollect"></parameterMap>
+    <resultMap id="SdCollectResultMap" type="com.xiaobu.web.pro.entity.SdCollect"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t."id",
+			t."task_id",
+			t."user_id",
+			t."price",
+			t."collectData",
+			t."status",
+			t."startTime",
+			t."finishTime",
+			t."deadTime",
+            t.submit_limit,
+	 	</trim>
+	</sql>
+	
+    <select id="getById" parameterType="String" resultMap="SdCollectResultMap">
+        select
+			<include refid="columnSql"></include>
+		from sd_collect t
+		where t.id = #{value}
+    </select>
+
+
+
+    <insert id="add" parameterMap="parameterMap">
+		insert into sd_collect
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			task_id,
+			user_id,
+			price,
+			collectData,
+			status,
+			startTime,
+			finishTime,
+			deadTime,
+            submit_limit,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id},
+			#{taskId},
+			#{userId},
+			#{price},
+			#{collectData},
+			#{status},
+			#{startTime},
+			#{finishTime},
+			#{deadTime},
+            #{submitLimit},
+		</trim>
+	</insert>
+	
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_collect
+		<set>
+			<if test="taskId != null">
+			task_id = #{taskId},
+			</if>
+			<if test="userId != null">
+			user_id = #{userId},
+			</if>
+			<if test="price != null ">
+			price = #{price},
+			</if>
+			<if test="collectData != null ">
+            "collectData" = #{collectData},
+			</if>
+			<if test="status != null">
+			status = #{status},
+			</if>
+			<if test="startTime != null ">
+			"startTime" = #{startTime},
+			</if>
+			<if test="finishTime != null">
+			"finishTime" = #{finishTime},
+			</if>
+			<if test="deadTime != null ">
+			"deadTime" = #{deadTime},
+			</if>
+            <if test="submitLimit != null">
+            submit_limit = #{submitLimit},
+            </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_collect where id = #{value}
+	</delete>
+
+
+    <!--查询散户提交的采集任务故状态值为5的为公网提交的任务-->
+    <select id="findExamineCollectInfo" parameterType="java.util.Map" resultMap="SdCollectResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sdt."name" as taskName,
+        su."name" as userName
+        from sd_collect t
+        LEFT JOIN sd_collect_task sdt on sdt.ID = t.task_id
+        LEFT JOIN sd_user su on su."id" =t.user_id
+        <where>
+            1=1
+            AND t.task_id =#{id}
+            AND t.STATUS = #{status}
+        </where>
+        ORDER BY t."finishTime" ASC
+    </select>
+    <!--查询团队管理员提交的任务是查询经团队管理员检验成功的数据故状态值为4，默认随机生成20-->
+    <select id="findExamineOrgCollectInfo" parameterType="java.util.Map" resultMap="SdCollectResultMap">
+        SELECT s.* FROM
+        (
+        select
+        <include refid="columnSql"></include>,
+        sdt."name" as taskName,
+        su."name" as userName
+        from sd_collect t
+        LEFT JOIN sd_collect_task sdt on sdt.ID = t.task_id
+        LEFT JOIN sd_user su on su."id" =t.user_id
+        <where>
+            1=1
+            AND t.task_id =#{id}
+            AND t.STATUS = #{status}
+
+        </where>
+        ORDER BY t."finishTime" ASC,RANDOM() LIMIT #{examineLen} ) as s
+    </select>
+
+    <!--团队管理员审核成员提交的采集任务-->
+    <select id="findExamineOrgeCollectInfo" parameterMap="parameterMap" resultMap="SdCollectResultMap">
+        select
+        <include refid="columnSql"></include>,
+        sdt."name" as taskName,
+        su."name" as userName
+        from sd_collect t
+        LEFT JOIN sd_collect_task sdt on sdt.ID = t.task_id
+        LEFT JOIN sd_user su on su."id" =t.user_id
+        <where>
+            1=1
+            AND t.task_id =${taskId}
+            AND t.STATUS = ${status}
+        </where>
+        ORDER BY t."finishTime" ASC
+    </select>
+
+
+    <!--查询平台管理员提交的任务是查询经平台管理员管理员检验成功的数据故状态值为7，默认随机生成20-->
+    <select id="findExamineCuneCollectInfo" parameterType="java.util.Map" resultMap="SdCollectResultMap">
+        SELECT s.* FROM
+        (
+        select
+        <include refid="columnSql"></include>,
+        sdt."name" as taskName,
+        su."name" as userName
+        from sd_collect t
+        LEFT JOIN sd_collect_task sdt on sdt.ID = t.task_id
+        LEFT JOIN sd_user su on su."id" =t.user_id
+        <where>
+            1=1
+            AND t.task_id in (${id})
+            AND (t.STATUS = #{status} or t.STATUS = #{status2})
+
+        </where>
+        ORDER BY t."finishTime" ASC,RANDOM() LIMIT #{examineLen} ) as s
+    </select>
+
+    <!--平台管理员查询通过率-->
+    <select id="findSuccessPorb" parameterType="java.util.Map" resultType="java.lang.Double">
+
+        SELECT
+        CASE
+        (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )
+        WHEN '0' THEN
+        0 ELSE  ROUND(
+        ( SELECT COUNT( x."id" ) FROM sd_collect x WHERE x.task_id = t."id" AND x.STATUS = #{success} ) * 100 / (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )::numeric ,2
+        )
+    END  as percentage
+    FROM
+        sd_collect_task t
+    WHERE
+				 t.id=#{taskId}
+    </select>
+
+    <!--甲方管理员查询通过率-->
+    <select id="findConSuccessPorb" parameterType="java.util.Map" resultType="java.lang.Double">
+
+        SELECT
+        CASE
+        (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )
+        WHEN '0' THEN
+        0 ELSE  ROUND(
+        ( SELECT COUNT( x."id" ) FROM sd_collect x WHERE x.task_id = t."id" AND x.STATUS = #{success} ) * 100 / (
+    SELECT
+        COUNT( x."id" )
+    FROM
+        sd_collect x
+    WHERE
+        x.task_id = t."id"
+        AND ( x.STATUS = #{error} OR x.STATUS = #{success} )
+        )::numeric ,2
+        )
+    END  as percentage
+    FROM
+        sd_collect_task t
+    WHERE
+		 t.id=#{taskId}
+    </select>
+
+    <select id="findExamineCountByTaskId" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            COUNT( T.ID ) AS examine,
+            (SELECT
+
+            COUNT( T.ID ) AS success
+        FROM
+            sd_collect T
+        WHERE
+            T.task_id IN ( ${taskId} )
+            AND T.STATUS = ${success}) as success
+        FROM
+            sd_collect T
+        WHERE
+            T.task_id IN ( ${taskId} )
+            AND ( T.STATUS = ${error} OR T.STATUS = ${success} )
+    </select>
+
+    <select id="findDefeateDetails" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+              t.id,
+              t.name as taskName,
+              t.count as sumCount,
+              t."type" as type,
+              o."name" as orgName,
+              t."status",
+              (SELECT count(c.id) FROM sd_collect c WHERE c.task_id=t.id AND c.status=${status}) as errorCount
+            FROM
+                sd_collect_task t LEFT JOIN sd_organization o ON t.organization_id=o.id
+            WHERE
+                t.id = ${taskId}
+    </select>
+
+    <select id="DefeateDetailsTable" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+              t.id,
+              u.name,
+              t."finishTime",
+              ct."type",
+              o."name" as orgName,
+              t."status"
+            FROM
+                sd_collect t LEFT JOIN sd_user u ON t.user_id=u.id
+                LEFT JOIN sd_organization_role r ON u.id = r.user_id
+                LEFT JOIN sd_organization o ON r.organization_id=o.id
+                LEFT JOIN sd_collect_task ct ON t.task_id=ct.id
+            WHERE
+                t.task_id IN (${ids})
+                AND t.status=${status}
+    </select>
+
+    <select id="findErrorNumByTaskId" parameterType="java.util.Map" resultType="java.lang.Integer">
+
+        SELECT
+                COUNT( T.ID )
+            FROM
+                sd_collect T
+            WHERE
+                T.task_id = ${taskId}
+                AND T.STATUS in (${status})
+    </select>
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.system.dao.SdOrganizationRoleDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.system.entity.SdOrganizationRole">
+	</parameterMap>
+    <resultMap id="SdOrganizationRoleResultMap" type="com.xiaobu.web.system.entity.SdOrganizationRole">
+	</resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t."id",
+			t."role",
+			t."user_id",
+			t."organization_id",
+			t."task_id",
+			t."createTime",
+			t."status",
+	 	</trim>
+	</sql>
+	
+    <select id="findByPage" parameterMap="parameterMap" resultMap="SdOrganizationRoleResultMap">
+        select
+			<include refid="columnSql"></include>
+			,sd.name as name,
+			sd.phone as phone,
+			sd.email as email,
+			sd.username as username,
+			sd."password" as password,
+			sd.nickname as nickname,
+			sd."avatarUrl" as avatarUrl
+		from sd_organization_role t
+		left join sd_user sd on t."user_id" = sd.id
+
+		<where>
+            1=1
+			<if test="organizationId != null">
+				and  t.organization_id =#{organizationId}
+			</if>
+				and	 t.status = #{status}
+            GROUP BY t.id,sd.id
+		</where>
+    </select>
+
+	<!--<select id="findByPageAndStatus" parameterMap="parameterMap" resultMap="SdOrganizationRoleResultMap">
+		select
+		<include refid="columnSql"></include>
+		,sd.name as name,
+		sd.phone as phone,
+		sd.email as email,
+		sd.username as username,
+		sd."password" as password,
+		sd.nickname as nickname,
+		sd."avatarUrl" as avatarUrl,
+		d.dictdata_name as gender
+		from sd_organization_role t
+		left join sd_user sd on t."user_id" = sd.id
+		left join sd_dictionarydata d on sd.gender = d.dictdata_value
+		and d.dictdata_type = #{dictdataType}
+		<where>
+			<if test="organizationId != null">
+				t.organization_id =#{organizationId}
+			</if>
+			<if test="status != 0 " >
+				and	status = ${status}
+			</if>
+		</where>
+	</select>-->
+
+	<update id="updateByCondition" parameterMap="parameterMap">
+		update sd_organization_role
+		<trim prefix="set" suffixOverrides=",">
+			<if test="status != null">
+				status = #{status},
+			</if>
+		</trim>
+		<where>
+			id = ${id}
+		</where>
+	</update>
+
+
+
+
+
+
+
+
+	
+
+</mapper>

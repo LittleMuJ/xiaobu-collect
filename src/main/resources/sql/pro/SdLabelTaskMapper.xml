@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiaobu.web.pro.dao.SdLabelTaskDao">
+    <parameterMap id="parameterMap" type="com.xiaobu.web.pro.entity.SdLabelTask"></parameterMap>
+    <resultMap id="SdLabelTaskResultMap" type="com.xiaobu.web.pro.entity.SdLabelTask"></resultMap>
+
+
+    <sql id="columnSql">
+		<trim suffixOverrides=",">
+			t.id,
+			t.name,
+			t.intro,
+			t.detail,
+			t.categroy,
+			t.type,
+			t.example,
+			t.total,
+			t.price,
+			t.duration,
+			t.count,
+			t.deadTime,
+			t.status,
+			t.created_at,
+			t.updated_at,
+			t.consumer_id,
+			t.label_task_id,
+	 	</trim>
+	</sql>
+	
+    <select id="getById" parameterType="String" resultMap="SdLabelTaskResultMap">
+        select
+			<include refid="columnSql"></include>
+		from sd_label_task t
+		where t.id = #{value}
+    </select>
+
+
+
+    <insert id="add" parameterMap="parameterMap">
+		insert into sd_label_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			name,
+			intro,
+			detail,
+			categroy,
+			type,
+			example,
+			total,
+			price,
+			duration,
+			count,
+			deadTime,
+			status,
+			created_at,
+			updated_at,
+			consumer_id,
+			label_task_id,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id},
+			#{name},
+			#{intro},
+			#{detail},
+			#{categroy},
+			#{type},
+			#{example},
+			#{total},
+			#{price},
+			#{duration},
+			#{count},
+			#{deadTime},
+			#{status},
+			#{createdAt},
+			#{updatedAt},
+			#{consumerId},
+			#{labelTaskId},
+		</trim>
+	</insert>
+	
+	
+	<update id="updateNotNull" parameterMap="parameterMap">
+		update sd_label_task
+		<set>
+			<if test="Id != null">
+			id = #{id},
+			</if>
+			<if test="Name != null">
+			name = #{name},
+			</if>
+			<if test="Intro != null">
+			intro = #{intro},
+			</if>
+			<if test="Detail != null">
+			detail = #{detail},
+			</if>
+			<if test="Categroy != null">
+			categroy = #{categroy},
+			</if>
+			<if test="Type != null">
+			type = #{type},
+			</if>
+			<if test="Example != null">
+			example = #{example},
+			</if>
+			<if test="Total != null">
+			total = #{total},
+			</if>
+			<if test="Price != null">
+			price = #{price},
+			</if>
+			<if test="Duration != null">
+			duration = #{duration},
+			</if>
+			<if test="Count != null">
+			count = #{count},
+			</if>
+			<if test="DeadTime != null">
+			deadTime = #{deadTime},
+			</if>
+			<if test="Status != null">
+			status = #{status},
+			</if>
+			<if test="CreatedAt != null">
+			created_at = #{createdAt},
+			</if>
+			<if test="UpdatedAt != null">
+			updated_at = #{updatedAt},
+			</if>
+			<if test="ConsumerId != null">
+			consumer_id = #{consumerId},
+			</if>
+			<if test="LabelTaskId != null">
+			label_task_id = #{labelTaskId},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from sd_label_task where id = #{value}
+	</delete>
+</mapper>
